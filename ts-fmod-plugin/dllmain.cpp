@@ -6,6 +6,124 @@
 #include "memory_structure.h"
 #include "memory.h"
 
+//ここから共有メモリ処理
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+#include <tchar.h>
+
+#define BUF_SIZE 256
+TCHAR szName[] = TEXT("YAKIJAKE_MEM");
+
+int write_memory(const char* event_name)
+{
+    // event_nameを受信 const char*からTCHARに変換
+    int size = MultiByteToWideChar(CP_UTF8, 0, event_name, -1, nullptr, 0);
+    wchar_t* szMsg = new wchar_t[size];
+
+    MultiByteToWideChar(CP_UTF8, 0, event_name, -1, szMsg, size);
+    //TCHAR buf[256];
+    //const char* str = "_a";
+    //#ifdef UNICODE
+    //    MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED, str, strlen(str), buf, (sizeof buf) / 2);
+    //#else
+    //    strcpy(buf, str);
+    //#endif
+
+    HANDLE hMapFile;
+    LPCTSTR pBuf;
+
+    hMapFile = CreateFileMapping(
+        INVALID_HANDLE_VALUE,    // use paging file
+        NULL,                    // default security
+        PAGE_READWRITE,          // read/write access
+        0,                       // maximum object size (high-order DWORD)
+        BUF_SIZE,                // maximum object size (low-order DWORD)
+        szName);                 // name of mapping object
+
+    if (hMapFile == NULL)
+    {
+        _tprintf(TEXT("Could not create file mapping object (%d).\n"),
+            GetLastError());
+        OutputDebugString(L"Could not create file mapping object.");
+        return 1;
+    }
+    pBuf = (LPTSTR)MapViewOfFile(hMapFile,   // handle to map object
+        FILE_MAP_ALL_ACCESS, // read/write permission
+        0,
+        0,
+        BUF_SIZE);
+
+    if (pBuf == NULL)
+    {
+        _tprintf(TEXT("Could not map view of file (%d).\n"),
+            GetLastError());
+
+        OutputDebugString(L"Could not map view of file.");
+
+        CloseHandle(hMapFile);
+
+        return 1;
+    }
+
+    // メモリ範囲を0埋めでリセットしてから書き込み
+    FillMemory((PVOID)pBuf, BUF_SIZE, 0);
+    CopyMemory((PVOID)pBuf, szMsg, (_tcslen(szMsg) * sizeof(TCHAR)));
+    _getch();
+
+    UnmapViewOfFile(pBuf);
+
+    //CloseHandle(hMapFile);
+
+    return 0;
+}
+
+#pragma comment(lib, "user32.lib")
+int read_memory()
+{
+    HANDLE hMapFile;
+    LPCTSTR pBuf;
+
+    hMapFile = OpenFileMapping(
+        FILE_MAP_READ,   // read only access
+        FALSE,                 // do not inherit the name
+        szName);               // name of mapping object
+
+    if (hMapFile == NULL)
+    {
+        _tprintf(TEXT("Could not open file mapping object (%d).\n"),
+            GetLastError());
+        OutputDebugString(L"Could not open file mapping object.");
+        return 1;
+    }
+
+    pBuf = (LPTSTR)MapViewOfFile(hMapFile, // handle to map object
+        FILE_MAP_READ,  // read only permission
+        0,
+        0,
+        BUF_SIZE);
+
+    if (pBuf == NULL)
+    {
+        _tprintf(TEXT("Could not map view of file (%d).\n"),
+            GetLastError());
+        OutputDebugString(L"Could not map view of file.");
+
+        CloseHandle(hMapFile);
+
+        return 1;
+    }
+
+    OutputDebugString(pBuf);
+
+    UnmapViewOfFile(pBuf);
+
+    CloseHandle(hMapFile);
+
+    return 0;
+}
+// ここまで共有メモリ処理
+
 fmod_manager* fmod_manager_instance = nullptr;
 
 telemetry_data_t telemetry_data;
@@ -219,7 +337,26 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
             const auto now_playing_navigation_sound = interior->get_now_playing_navigation_sound();
             if (now_playing_navigation_sound != nullptr && last_played != now_playing_navigation_sound)
             {
-                fmod_manager_instance->set_event_state(now_playing_navigation_sound->get_event_name(), true, true);
+                const char* event_name = now_playing_navigation_sound->get_event_name();
+                fmod_manager_instance->set_event_state(event_name, true, true);
+
+
+                try
+                {
+                    int a = write_memory(event_name);
+                    if (a == 0) {
+                        OutputDebugString(L"returned 0");
+
+                        read_memory();
+                    }
+                    else {
+                        OutputDebugString(L"returned not0");
+                    }
+                }
+                catch (char* str)
+                {
+                    OutputDebugString(L"dllmain.cpp error");
+                }
             }
             last_played = now_playing_navigation_sound;
         }
