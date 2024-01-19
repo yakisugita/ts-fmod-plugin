@@ -358,6 +358,18 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
                     OutputDebugString(L"dllmain.cpp error");
                 }
             }
+            // çƒê∂Ç™èIóπÇ∑ÇÈÇ‹Ç≈ÇÕ !=nullptr Ç›ÇΩÇ¢
+            if (now_playing_navigation_sound == nullptr && last_played != now_playing_navigation_sound)
+            {
+                try
+                {
+                    int a = write_memory("", false);
+                }
+                catch (char* str)
+                {
+                    OutputDebugString(L"dllmain.cpp error");
+                }
+            }
             last_played = now_playing_navigation_sound;
         }
     }
