@@ -13,25 +13,25 @@
 #include <tchar.h>
 
 #define BUF_SIZE 256
-TCHAR szName[] = TEXT("YAKIJAKE_MEM");
+TCHAR szName[] = TEXT("VoiceNaviPlus_Telemetry");
 
-int write_memory(const char* event_name)
+HANDLE hMapFile;
+
+int write_memory(const char* event_name, bool clear)
 {
+    LPCTSTR pBuf;
+
+    // ã§óLÉÅÉÇÉäâï˙
+    if (clear) {
+        CloseHandle(hMapFile);
+        return 0;
+    }
+
     // event_nameÇéÛêM const char*Ç©ÇÁTCHARÇ…ïœä∑
     int size = MultiByteToWideChar(CP_UTF8, 0, event_name, -1, nullptr, 0);
     wchar_t* szMsg = new wchar_t[size];
 
     MultiByteToWideChar(CP_UTF8, 0, event_name, -1, szMsg, size);
-    //TCHAR buf[256];
-    //const char* str = "_a";
-    //#ifdef UNICODE
-    //    MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED, str, strlen(str), buf, (sizeof buf) / 2);
-    //#else
-    //    strcpy(buf, str);
-    //#endif
-
-    HANDLE hMapFile;
-    LPCTSTR pBuf;
 
     hMapFile = CreateFileMapping(
         INVALID_HANDLE_VALUE,    // use paging file
@@ -81,15 +81,15 @@ int write_memory(const char* event_name)
 #pragma comment(lib, "user32.lib")
 int read_memory()
 {
-    HANDLE hMapFile;
+    HANDLE hMapFile_;
     LPCTSTR pBuf;
 
-    hMapFile = OpenFileMapping(
+    hMapFile_ = OpenFileMapping(
         FILE_MAP_READ,   // read only access
         FALSE,                 // do not inherit the name
         szName);               // name of mapping object
 
-    if (hMapFile == NULL)
+    if (hMapFile_ == NULL)
     {
         _tprintf(TEXT("Could not open file mapping object (%d).\n"),
             GetLastError());
@@ -97,7 +97,7 @@ int read_memory()
         return 1;
     }
 
-    pBuf = (LPTSTR)MapViewOfFile(hMapFile, // handle to map object
+    pBuf = (LPTSTR)MapViewOfFile(hMapFile_, // handle to map object
         FILE_MAP_READ,  // read only permission
         0,
         0,
@@ -109,7 +109,7 @@ int read_memory()
             GetLastError());
         OutputDebugString(L"Could not map view of file.");
 
-        CloseHandle(hMapFile);
+        CloseHandle(hMapFile_);
 
         return 1;
     }
@@ -118,7 +118,7 @@ int read_memory()
 
     UnmapViewOfFile(pBuf);
 
-    CloseHandle(hMapFile);
+    CloseHandle(hMapFile_);
 
     return 0;
 }
@@ -343,7 +343,7 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
 
                 try
                 {
-                    int a = write_memory(event_name);
+                    int a = write_memory(event_name, false);
                     if (a == 0) {
                         OutputDebugString(L"returned 0");
 
@@ -558,6 +558,7 @@ void shutdown()
 SCSAPI_VOID scs_telemetry_shutdown(void)
 {
     shutdown();
+    write_memory("", true);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
