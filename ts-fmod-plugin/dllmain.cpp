@@ -27,6 +27,8 @@ int write_memory(const char* event_name, bool clear)
         return 0;
     }
 
+    // ‹¤—Lƒƒ‚ƒŠì¬
+
     // event_name‚ğóM const char*‚©‚çTCHAR‚É•ÏŠ·
     int size = MultiByteToWideChar(CP_UTF8, 0, event_name, -1, nullptr, 0);
     wchar_t* szMsg = new wchar_t[size];
@@ -554,6 +556,16 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     register_telem_channels();
 
     scs_log(0, "[ts-fmod-plugin] Plugin loaded");
+
+    // ‹¤—Lƒƒ‚ƒŠ‰Šú‰»
+    try
+    {
+        int a = write_memory("", false);
+    }
+    catch (char* str)
+    {
+        OutputDebugString(L"dllmain.cpp error");
+    }
 
     return SCS_RESULT_ok;
 }
