@@ -126,7 +126,7 @@ int read_memory()
 }
 // ‚±‚±‚Ü‚Å‹¤—Lƒƒ‚ƒŠˆ—
 
-fmod_manager* fmod_manager_instance = nullptr;
+//fmod_manager* fmod_manager_instance = nullptr;
 
 telemetry_data_t telemetry_data;
 
@@ -163,7 +163,7 @@ scs_telemetry_unregister_from_channel_t unregister_from_channel = nullptr;
 
 SCSAPI_VOID telemetry_pause(const scs_event_t event, const void* const event_info, scs_context_t context)
 {
-    fmod_manager_instance->set_paused(event == SCS_TELEMETRY_EVENT_paused);
+    //fmod_manager_instance->set_paused(event == SCS_TELEMETRY_EVENT_paused);
 }
 
 bool should_engine_brake_sound_play()
@@ -174,11 +174,11 @@ bool should_engine_brake_sound_play()
 
 SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info, scs_context_t context)
 {
-    fmod_manager_instance->set_event_parameter("engine/engine", "rpm", telemetry_data.rpm);
-    fmod_manager_instance->set_event_parameter("engine/exhaust", "rpm", telemetry_data.rpm);
-    fmod_manager_instance->set_event_parameter("engine/engine", "load", telemetry_data.effective_throttle);
+    //fmod_manager_instance->set_event_parameter("engine/engine", "rpm", telemetry_data.rpm);
+    //fmod_manager_instance->set_event_parameter("engine/exhaust", "rpm", telemetry_data.rpm);
+    //fmod_manager_instance->set_event_parameter("engine/engine", "load", telemetry_data.effective_throttle);
     // The game might use some other value, but this seems close enough
-    fmod_manager_instance->set_event_parameter("engine/exhaust", "load", telemetry_data.effective_throttle);
+    //fmod_manager_instance->set_event_parameter("engine/exhaust", "load", telemetry_data.effective_throttle);
 
     if (base_ctrl_ptr != NULL)
     {
@@ -193,7 +193,7 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
                 const auto turbo_pressure = game_actor->get_turbo_pressure();
                 if (turbo_pressure >= 0 && turbo_pressure <= 1)
                 {
-                    fmod_manager_instance->set_event_parameter("engine/turbo", "turbo", turbo_pressure);
+                    //fmod_manager_instance->set_event_parameter("engine/turbo", "turbo", turbo_pressure);
                 }
 
                 const auto engine_state = game_actor->get_engine_state();
@@ -202,54 +202,54 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
                     if (engine_state > 0 && stored_engine_state == 0)
                     {
                         // engine is starting/running
-                        fmod_manager_instance->set_event_parameter("engine/engine", "play", 1);
-                        fmod_manager_instance->set_event_parameter("engine/exhaust", "play", 1);
-                        fmod_manager_instance->set_event_state("engine/engine", true);
-                        fmod_manager_instance->set_event_state("engine/exhaust", true);
+                        //fmod_manager_instance->set_event_parameter("engine/engine", "play", 1);
+                        //fmod_manager_instance->set_event_parameter("engine/exhaust", "play", 1);
+                        //fmod_manager_instance->set_event_state("engine/engine", true);
+                        //fmod_manager_instance->set_event_state("engine/exhaust", true);
 
-                        fmod_manager_instance->set_event_parameter("engine/turbo", "play", 1);
-                        fmod_manager_instance->set_event_state("engine/turbo", true);
+                        //fmod_manager_instance->set_event_parameter("engine/turbo", "play", 1);
+                        //fmod_manager_instance->set_event_state("engine/turbo", true);
                     }
                     else if (engine_state == 0 || engine_state == 3) // engine is no longer running
                     {
-                        fmod_manager_instance->set_event_parameter("engine/engine", "play", 0);
-                        fmod_manager_instance->set_event_parameter("engine/exhaust", "play", 0);
-                        fmod_manager_instance->set_event_parameter("engine/turbo", "play", 0);
+                        //fmod_manager_instance->set_event_parameter("engine/engine", "play", 0);
+                        //fmod_manager_instance->set_event_parameter("engine/exhaust", "play", 0);
+                        //fmod_manager_instance->set_event_parameter("engine/turbo", "play", 0);
                     }
                     stored_engine_state = engine_state;
                 }
 
-                fmod_manager_instance->set_event_parameter("engine/engine",
-                                                           "brake",
-                                                           should_engine_brake_sound_play()
-                                                               ? game_actor->get_engine_brake_state()
-                                                               : 0.0f);
+                //fmod_manager_instance->set_event_parameter("engine/engine",
+                //                                           "brake",
+                //                                           should_engine_brake_sound_play()
+                //                                               ? game_actor->get_engine_brake_state()
+                //                                               : 0.0f);
 
                 const auto hazard_warning = game_actor->get_hazard_warning_state();
                 if (!common::cmpf(hazard_warning, hazard_warning_state))
                 {
-                    fmod_manager_instance->set_event_state("interior/stick_hazard_warning", true);
+                    //fmod_manager_instance->set_event_state("interior/stick_hazard_warning", true);
                     hazard_warning_state = hazard_warning;
                 }
 
                 const auto light_horn = game_actor->get_light_horn_state();
                 if (!common::cmpf(light_horn, light_horn_state))
                 {
-                    fmod_manager_instance->set_event_state("interior/stick_light_horn", true);
+                    //fmod_manager_instance->set_event_state("interior/stick_light_horn", true);
                     light_horn_state = light_horn;
                 }
 
                 const auto stick_lights = game_actor->get_light_switch_state();
                 if (!common::cmpf(stick_lights, light_stick_state))
                 {
-                    fmod_manager_instance->set_event_state("interior/stick_lights", true);
+                    //fmod_manager_instance->set_event_state("interior/stick_lights", true);
                     light_stick_state = stick_lights;
                 }
 
                 const auto wipers_stick = game_actor->get_wipers_state();
                 if (!common::cmpf(wipers_stick, wipers_stick_state))
                 {
-                    fmod_manager_instance->set_event_state("interior/stick_wipers", true);
+                    //fmod_manager_instance->set_event_state("interior/stick_wipers", true);
                     wipers_stick_state = wipers_stick;
                 }
 
@@ -257,21 +257,21 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
                     (game_actor->left_window_moving_direction > 2 || game_actor->right_window_moving_direction > 2))
                 {
                     is_window_moving = true;
-                    fmod_manager_instance->set_global_parameter("window_stop", 0.f);
-                    fmod_manager_instance->set_event_state("interior/window_move", true, true);
+                    //fmod_manager_instance->set_global_parameter("window_stop", 0.f);
+                    //fmod_manager_instance->set_event_state("interior/window_move", true, true);
                 }
                 else if (is_window_moving)
                 {
                     is_window_moving = false;
-                    fmod_manager_instance->set_global_parameter("window_stop", 1.0f);
-                    fmod_manager_instance->set_event_state("interior/window_move", false);
+                    //fmod_manager_instance->set_global_parameter("window_stop", 1.0f);
+                    //fmod_manager_instance->set_event_state("interior/window_move", false);
                 }
                 if ((game_actor->left_window_state == 1.f && game_actor->left_window_btn_state == 1.f) ||
                     (game_actor->left_window_state == 0.f && game_actor->left_window_btn_state == 0.f))
                 {
                     if (!is_left_window_button_active)
                     {
-                        fmod_manager_instance->set_event_state("interior/window_click", true, false);
+                        //fmod_manager_instance->set_event_state("interior/window_click", true, false);
                     }
                     is_left_window_button_active = true;
                 }
@@ -284,7 +284,7 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
                 {
                     if (!is_right_window_button_active)
                     {
-                        fmod_manager_instance->set_event_state("interior/window_click", true, false);
+                        //fmod_manager_instance->set_event_state("interior/window_click", true, false);
                     }
                     is_right_window_button_active = true;
                 }
@@ -301,46 +301,46 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
         {
             const auto window_pos = interior->get_window_state();
             if (window_pos.x >= 0 && window_pos.x <= 1)
-                fmod_manager_instance->set_global_parameter(
-                    "wnd_left",
-                    window_pos.x);
+                //fmod_manager_instance->set_global_parameter(
+                //    "wnd_left",
+                //    window_pos.x);
             if (window_pos.y >= 0 && window_pos.y <= 1)
-                fmod_manager_instance->set_global_parameter(
-                    "wnd_right",
-                    window_pos.y);
+                //fmod_manager_instance->set_global_parameter(
+                //    "wnd_right",
+                //    window_pos.y);
 
             if (common::cmpf(window_pos.x, 0) && common::cmpf(window_pos.y, 0) && interior->
                 get_is_camera_inside())
             {
-                fmod_manager_instance->set_bus_volume("outside", fmod_manager_instance->config->windows_closed);
-                fmod_manager_instance->set_bus_volume("exterior", fmod_manager_instance->config->windows_closed);
+                //fmod_manager_instance->set_bus_volume("outside", fmod_manager_instance->config->windows_closed);
+                //fmod_manager_instance->set_bus_volume("exterior", fmod_manager_instance->config->windows_closed);
                 // backward compatibility
             }
             else
             {
-                fmod_manager_instance->set_bus_volume("outside", 1);
-                fmod_manager_instance->set_bus_volume("exterior", 1); // backward compatibility
+                //fmod_manager_instance->set_bus_volume("outside", 1);
+                //fmod_manager_instance->set_bus_volume("exterior", 1); // backward compatibility
             }
 
             if (interior->get_is_on_interior_cam())
             {
-                fmod_manager_instance->set_bus_volume("cabin/interior", fmod_manager_instance->config->interior);
+                //fmod_manager_instance->set_bus_volume("cabin/interior", fmod_manager_instance->config->interior);
             }
             else
             {
-                fmod_manager_instance->set_bus_volume("cabin/interior", 0);
+                //fmod_manager_instance->set_bus_volume("cabin/interior", 0);
             }
 
-            fmod_manager_instance->set_global_parameter("cabin_out", interior->get_cabin_out());
-            fmod_manager_instance->set_global_parameter("cabin_rot",
-                                                        interior->get_camera_rotation_in_cabin());
-            fmod_manager_instance->set_global_parameter("surr_type", interior->get_has_echo());
+            //fmod_manager_instance->set_global_parameter("cabin_out", interior->get_cabin_out());
+            //fmod_manager_instance->set_global_parameter("cabin_rot",
+            //                                            interior->get_camera_rotation_in_cabin());
+            //fmod_manager_instance->set_global_parameter("surr_type", interior->get_has_echo());
 
             const auto now_playing_navigation_sound = interior->get_now_playing_navigation_sound();
             if (now_playing_navigation_sound != nullptr && last_played != now_playing_navigation_sound)
             {
                 const char* event_name = now_playing_navigation_sound->get_event_name();
-                fmod_manager_instance->set_event_state(event_name, true, true);
+                //fmod_manager_instance->set_event_state(event_name, true, true);
 
 
                 try
@@ -380,29 +380,29 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
     if (telemetry_data.brake_air_pressure_warning && telemetry_data.engine_enabled)
     {
         is_air_pressure_warning_on = true;
-        fmod_manager_instance->set_event_state("interior/air_warning", true, true);
+        //fmod_manager_instance->set_event_state("interior/air_warning", true, true);
     }
     else if (is_air_pressure_warning_on)
     {
         is_air_pressure_warning_on = false;
-        fmod_manager_instance->set_event_state("interior/air_warning", false);
+        //fmod_manager_instance->set_event_state("interior/air_warning", false);
     }
 
     if ((telemetry_data.light_lblinker || telemetry_data.light_rblinker) && !was_indicator_light_on)
     {
-        fmod_manager_instance->set_event_state("interior/blinker_on", true);
+        //fmod_manager_instance->set_event_state("interior/blinker_on", true);
         was_indicator_light_on = true;
     }
     else if (!telemetry_data.light_lblinker && !telemetry_data.light_rblinker && was_indicator_light_on)
     {
-        fmod_manager_instance->set_event_state("interior/blinker_off", true);
+        //fmod_manager_instance->set_event_state("interior/blinker_off", true);
         was_indicator_light_on = false;
     }
 
     if (telemetry_data.park_brake_on != was_park_brake_on)
     {
-        if (was_park_brake_on) fmod_manager_instance->set_event_state("interior/stick_park_brake_off", true);
-        else fmod_manager_instance->set_event_state("interior/stick_park_brake", true);
+        //if (was_park_brake_on) fmod_manager_instance->set_event_state("interior/stick_park_brake_off", true);
+        //else fmod_manager_instance->set_event_state("interior/stick_park_brake", true);
         was_park_brake_on = telemetry_data.park_brake_on;
     }
 
@@ -410,28 +410,28 @@ SCSAPI_VOID telemetry_tick(const scs_event_t event, const void* const event_info
     // 1 if lblinker, 2 if rblinker, 0 if off
     if (current_blinker_stick != indicator_stick_state && current_blinker_stick != 0)
     {
-        fmod_manager_instance->set_event_state("interior/stick_blinker", true);
+        //fmod_manager_instance->set_event_state("interior/stick_blinker", true);
         indicator_stick_state = current_blinker_stick;
     }
     else if (current_blinker_stick == 0 && indicator_stick_state != 0)
     {
-        fmod_manager_instance->set_event_state("interior/stick_blinker_off", true);
+        //fmod_manager_instance->set_event_state("interior/stick_blinker_off", true);
         indicator_stick_state = 0;
     }
 
     if (telemetry_data.retarder_level != prev_retarder_level)
     {
-        fmod_manager_instance->set_event_state("interior/stick_retarder", true);
+        //fmod_manager_instance->set_event_state("interior/stick_retarder", true);
         prev_retarder_level = telemetry_data.retarder_level;
     }
 
     if (telemetry_data.high_beam != high_beams_enabled)
     {
-        fmod_manager_instance->set_event_state("interior/stick_high_beam", true);
+        //fmod_manager_instance->set_event_state("interior/stick_high_beam", true);
         high_beams_enabled = telemetry_data.high_beam;
     }
 #pragma endregion
-    fmod_manager_instance->update();
+    //fmod_manager_instance->update();
 }
 
 
@@ -545,13 +545,13 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
     }
     register_for_channel = version_params->register_for_channel;
 
-    fmod_manager_instance = new fmod_manager(scs_log);
+    //fmod_manager_instance = new fmod_manager(scs_log);
 
-    if (!fmod_manager_instance->init())
-    {
-        scs_log(SCS_LOG_TYPE_error, "[ts-fmod-plugin] Could not init fmod");
-        return SCS_RESULT_generic_error;
-    }
+    //if (!fmod_manager_instance->init())
+    //{
+    //    scs_log(SCS_LOG_TYPE_error, "[ts-fmod-plugin] Could not init fmod");
+    //    return SCS_RESULT_generic_error;
+    //}
 
     register_telem_channels();
 
@@ -572,11 +572,11 @@ SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version, const scs_telemetry_in
 
 void shutdown()
 {
-    if (fmod_manager_instance != nullptr)
-    {
-        delete fmod_manager_instance;
-        fmod_manager_instance = nullptr;
-    }
+    //if (fmod_manager_instance != nullptr)
+    //{
+    //    delete fmod_manager_instance;
+    //    fmod_manager_instance = nullptr;
+    //}
 }
 
 SCSAPI_VOID scs_telemetry_shutdown(void)
